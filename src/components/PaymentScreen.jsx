@@ -5,7 +5,7 @@ import PaymentSuccess from "/src/components/PaymentSuccess";
 import KioskCountdownTimer from "/src/components/KioskCountdownTimer";
 import styled from "styled-components";
 import { TailSpin } from "react-loader-spinner";
-import { QRCodeCanvas } from "qrcode.react";
+import QRCodePayment from "/src/components";
 
 const ModalOverlay = styled.div`
   position: fixed;
