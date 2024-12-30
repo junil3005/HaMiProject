@@ -9,7 +9,6 @@ import styled from "styled-components";
 import { TailSpin } from "react-loader-spinner";
 import QRCode from "qrcode.react"; //  QR 코드 라이브러리
 
-
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
