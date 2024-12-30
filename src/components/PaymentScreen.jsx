@@ -7,7 +7,7 @@ import PaymentSuccess from "/src/components/PaymentSuccess";
 import KioskCountdownTimer from "/src/components/KioskCountdownTimer";
 import styled from "styled-components";
 import { TailSpin } from "react-loader-spinner";
-import QRCodePayment from "/src/components";
+import QRCodePayment from "/src/components/QRCodePayment";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -176,12 +176,8 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     marginBottom: "10px",
   };
 
-  const qrCodeValue = JSON.stringify({
-    orderId,
-    totalAmount,
-    totalPrice,
-    items,
-  });
+  // QR코드 결제수단 추가 
+  const [ showQRCodePayment, setShowQRCodePayment ] = useState(false);
 
   return (
     <ModalOverlay>
@@ -240,18 +236,7 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                       />
                       <span>현금</span>
                     </button>
-                    <button
-                      style={buttonStyle("qr")}
-                      onClick={() => handleMethodSelect("qr")}
-                    >
-                      <QRCodeCanvas
-                        value={qrCodeValue}
-                        size={80}
-                        bgColor="ffffff"
-                        level="Q"
-                      />
-                      <span>QR 코드</span>
-                    </button>
+              
                   </div>
                   {paymentMethod && (
                     <div
@@ -298,6 +283,15 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
           {!isComplete && (
             <ButtonClose onClick={handleClose}>그냥닫기</ButtonClose>
           )}
+          {/* QR 코드 결제 화면 및 결제창 추가*/}
+          <div>
+          <h2>결제 화면</h2>
+          <button onClick={() => setShowQRCodePayment(true)}>QR 코드 결제</button>
+          {showQRCodePayment && (
+            <QRCodePayment totalPrice={totalPrice} onClose={() => setShowQRCodePayment(false)} />
+          )}
+          <button onClick={onClose}> 닫기 </button>
+          </div>
         </div>
       </ModalContent>
     </ModalOverlay>
