@@ -77,7 +77,7 @@ function PaymentSuccess({ orderDetails }) {
 }
 
 PaymentSuccess.propTypes = {
-  orderDetails: PropTypes.array,
+  orderDetails: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
 export default PaymentSuccess;

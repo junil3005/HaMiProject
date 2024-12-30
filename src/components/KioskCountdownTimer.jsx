@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-// import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 import PropTypes from "prop-types";
 
 const TimerContainer = styled.div`
   font-size: 3rem;
   font-weight: bold;
-  color: ${(props) => (props.isWarning ? "#ff0000" : "#333")};
+  color: ${(props) => (props.$isWarning ? "#ff0000" : "#333")};
   background-color: #f0f0f0;
   padding: 1rem;
   border-radius: 8px;
@@ -20,6 +20,7 @@ const TimeUnit = styled.span`
   padding: 0.5rem;
   border-radius: 4px;
   margin: 0 0.2rem;
+  color: ${(props) => (props.$isWarning ? "#ff0000" : "inherit")};
 `;
 
 function KioskCountdownTimer({ startFrom, onCountdownEnd, children }) {
@@ -53,11 +54,17 @@ function KioskCountdownTimer({ startFrom, onCountdownEnd, children }) {
   const seconds = timeLeft % 60;
 
   return (
-    <TimerContainer isWarning={isWarning}>
+    <TimerContainer $isWarning={isWarning}>
       {children}
-      <TimeUnit>{minutes.toString().padStart(2, "0")}</TimeUnit>
+      <TimeUnit $isWarning={isWarning}>
+        {minutes.toString().padStart(2, "0")}
+      </TimeUnit>
+      {/* <TimeUnit>{minutes.toString().padStart(2, "0")}</TimeUnit> */}
       <span>:</span>
-      <TimeUnit>{seconds.toString().padStart(2, "0")}</TimeUnit>
+      <TimeUnit $isWarning={isWarning}>
+        {seconds.toString().padStart(2, "0")}
+      </TimeUnit>
+      {/* <TimeUnit>{seconds.toString().padStart(2, "0")}</TimeUnit> */}
     </TimerContainer>
   );
 }
@@ -65,6 +72,7 @@ function KioskCountdownTimer({ startFrom, onCountdownEnd, children }) {
 KioskCountdownTimer.propTypes = {
   startFrom: PropTypes.number,
   onCountdownEnd: PropTypes.func,
+  children: PropTypes.node,
 };
 
 export default KioskCountdownTimer;

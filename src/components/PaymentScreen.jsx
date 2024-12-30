@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import OrderHistory from "/src/components/OrderHistory";
 import PaymentSuccess from "/src/components/PaymentSuccess";
@@ -60,6 +62,13 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
   // 타이머 초기화를 위한 usestate
   const [timerKey, setTimerKey] = useState(0);
 
+  // 화면 이동을 위한 네비게이트 선언
+  const navigate = useNavigate();
+
+  const toHome = () => {
+    navigate("/");
+  };
+
   const handlePayment = () => {
     setIsProcessing(true);
     setTimeout(() => {
@@ -87,11 +96,8 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
 
   const handleCountdownEnd = () => {
     setShowCountdown(false);
-    // 여기에 카운트다운이 끝났을 때 수행할 작업을 추가할 수 있습니다.
-
-    // console.log 확인용으로 해놓음, 삭제할 것
-    console.log("결제 시간이 종료되었습니다.");
     // 홈 화면으로 이동(추후 작업)
+    onClose(); // 메뉴 화면으로 이동
   };
 
   const handleMethodSelect = (method) => {
@@ -136,6 +142,17 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
   useEffect(() => {
     console.log("orderId:", orderId); // orderId가 변경될 때마다 콘솔에 출력
   }, [orderId]);
+
+  useEffect(() => {
+    if (isComplete) {
+      const timer = setTimeout(() => {
+        // onClose(); // 홈 화면으로 이동
+        toHome();
+      }, 11000); // 11초 후 홈 화면으로 이동(원형 타이머가 10초에 끝나므로 '첫 화면으로 돌아갑니다' 메시지를 보여주기 위해 11초로 설정)
+
+      return () => clearTimeout(timer);
+    }
+  }, [isComplete, onClose, toHome]);
 
   const buttonStyle = (method) => ({
     padding: "20px",
@@ -224,13 +241,15 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                       <span>현금</span>
                     </button>
                     <button
-                    style={buttonStyle("qr")}
-                    onClick={() => handleMethodSelect("qr")}>
+                      style={buttonStyle("qr")}
+                      onClick={() => handleMethodSelect("qr")}
+                    >
                       <QRCodeCanvas
-                      value={qrCodeValue}
-                      size={80}
-                      bgColor="ffffff"
-                      level="Q" />
+                        value={qrCodeValue}
+                        size={80}
+                        bgColor="ffffff"
+                        level="Q"
+                      />
                       <span>QR 코드</span>
                     </button>
                   </div>
@@ -270,7 +289,9 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
           ) : (
             // 주문내역 출력
             <PaymentSuccess orderDetails={orders[0]} />
+            // <PaymentSuccess orderDetails={[orders[0]]} />
           )}
+
           {isComplete && (
             <ButtonClose onClick={handleCompleteClose}>닫기+1</ButtonClose>
           )}
