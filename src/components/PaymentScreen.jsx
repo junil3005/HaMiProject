@@ -7,7 +7,7 @@ import PaymentSuccess from "/src/components/PaymentSuccess";
 import KioskCountdownTimer from "/src/components/KioskCountdownTimer";
 import styled from "styled-components";
 import { TailSpin } from "react-loader-spinner";
-import QRCode from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -36,6 +36,11 @@ const ButtonClose = styled.button`
   font-weight: bold;
 `;
 
+// QR코드 DIV 추가
+const QRWrapper = styled.div`
+  margin-top: 20px;
+  text-align: center;
+`;
 
 const loadingSpinnerStyles = {
   loadingSpinner: {
@@ -54,19 +59,12 @@ const loadingSpinnerStyles = {
   },
 };
 
-// QR 코드 버튼 추가
-const QRWrapper = styled.div`
-  margin-top: 20px;
-  text-align: center;
-`;
-
 function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);  // qr코드 표시 상태
   const [showCountdown, setShowCountdown] = useState(false);
-  const [showQRCode, setShowQRCode] = useState(false);  // QR코드 추가
-  const [orderId, setOrderId] = useState(1000); // 초기값 설정
   // 타이머 초기화를 위한 usestate
   const [timerKey, setTimerKey] = useState(0);
 
@@ -77,35 +75,52 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     navigate("/");
   };
 
-  // QR코드 타이머 추가
-  const handlePayment = () => {
-    if (paymentMethod === "qr") {
-      setShowQRCode(true);
-    } else {
-      setIsProcessing(true);
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsComplete(true);
-      }, 2000);
-    }
-  };
+// // QR코드 추가 하기 전 기존 페이먼트
+//   const handlePayment = () => {
+//     setIsProcessing(true);
+//     setTimeout(() => {
+//       setIsProcessing(false);
+//       setIsComplete(true);
+//     }, 2000);
+//   };
 
-      // QR 코드 결제 완료 로직
-      const handleQRCodePayment = () => {
-        // QR 코드 결제 완료 로직 (예: 백엔드 서버와 통신)
-        setIsProcessing(true);
-        setTimeout(() => {
-          setIsProcessing(false);
-          setIsComplete(true);
-          setShowQRCode(false);
-        }, 3000); // 3초 후 완료 상태로 설정
-      }; 
-  
+// QR 코드 추가 후 PAYMENT 
+const handlePayment = () => {
+  if (paymentMethod === "qr") {
+    setShowQRCode(true);
+  } else {
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsComplete(true);
+    }, 2000);
+  }
+};
+
+// QR코드 추가 후 QR코드 페이먼트
+const handleQRCodePayment = () => {
+  setIsProcessing(true);
+  setTimeout(() => {
+    setIsProcessing(false);
+    setIsComplete(true);
+    setShowQRCode(false);
+  }, 3000);
+};
+
+  const [orderId, setOrderId] = useState(() => {
+    const storedValue = sessionStorage.getItem("paymentCount");
+    return storedValue ? parseInt(storedValue) : 1000;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("paymentCount", orderId);
+  }, [orderId]);
 
   const handleClose = () => {
     // 일반적인 닫기 버튼 기능 (예: 모달 닫기)
     onClose();
   };
+
   const handleCompleteClose = () => {
     // orderId 상태를 안전하게 업데이트
     setOrderId((prevOrderId) => {
@@ -125,11 +140,24 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     onClose(); // 메뉴 화면으로 이동
   };
 
+  // // QR 코드 추가 전 핸들 메서드
+  // const handleMethodSelect = (method) => {
+  //   setPaymentMethod(method);
+  //   setTimerKey((prevKey) => prevKey + 1);
+  //   setShowCountdown(true);
+  // };
+
+  // QR코드 핸들 메서드 추가
   const handleMethodSelect = (method) => {
     setPaymentMethod(method);
-    setTimerKey((prevKey) => prevKey + 1);
-    setShowCountdown(true);
+    if (method === "qr") {
+      setShowQRCode(true);
+    } else {
+      setTimerKey((prevKey) => prevKey + 1);
+      setShowCountdown(true);
+    }
   };
+
 
   const orderDate = new Date();
   const options = {
@@ -164,9 +192,6 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
       setShowCountdown(true);
     }
   }, [paymentMethod]);
-  useEffect(() => {
-    console.log("orderId:", orderId); // orderId가 변경될 때마다 콘솔에 출력
-  }, [orderId]);
 
   useEffect(() => {
     if (isComplete) {
@@ -200,6 +225,9 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     height: "80px",
     marginBottom: "10px",
   };
+
+  // QR코드 결제 URL 추가
+  const qrCodeValue = `http://localhost:5175/menu'?orderId=${orderId}&amount=${totalPrice}`; // 결제 URL
 
   return (
     <ModalOverlay>
@@ -258,27 +286,45 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                       />
                       <span>현금</span>
                     </button>
-                     {/*QR코드 버튼 추가*/}
-                    {/* <button
+                    {/* QR코드 버튼 추가 */}
+                    <button
                     style={buttonStyle("qr")}
                     onClick={() => handleMethodSelect("qr")}
                   >
-                    QR 코드
+                    <img
+                      src="/src/images/image.png"
+                      alt="QR 코드"
+                      style={imageStyle}
+                    />
+                    <span>QR 코드</span>
                   </button>
                   </div>
-                {paymentMethod === "qr" && showQRCode && (
-                  <QRWrapper>
-                    <QRCode
-                      value={`https://example.com/payment?orderId=${orderId}&amount=${totalPrice}`}
-                      size={200}
-                    />
-                     <p>위 QR 코드를 스캔하여 결제를 완료해주세요.</p>
-                    <button onClick={handleQRCodePayment}>
-                      QR 코드 결제 완료
+                  {/* QR코드 추가 후 페이먼트 메서드  */}
+                  {paymentMethod && paymentMethod !== "qr" && (
+                    <div
+                    style={{
+                      marginLeft: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <button
+                      onClick={handlePayment}
+                      disabled={isProcessing}
+                      style={buttonStyle("payment")}
+                    >
+                      <img
+                        src="/src/images/payments.png"
+                        alt="결제"
+                        style={imageStyle}
+                      />
+                      <span>결제하기</span>
                     </button>
-                    </QRWrapper>)} */}
                   </div>
-                  {paymentMethod && (
+                )}
+
+                  {/* QR코드 페이먼드트 메서드 추가하기 전 결제 메서드 */}
+                  {/* {paymentMethod && (       
                     <div
                       style={{
                         marginLeft: "20px",
@@ -299,8 +345,19 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                         <span>결제하기</span>
                       </button>
                     </div>
-                  )}
+                  )} */}
                 </div>
+              </div>
+              {/* QR코드 스캔 및 결제 추가 */}
+              {showQRCode && (
+                <QRWrapper>
+                  <QRCodeCanvas value={qrCodeValue} size={200} />
+                  <p>QR 코드를 스캔하여 결제를 진행하세요.</p>
+                  <button onClick={handleQRCodePayment}>
+                    결제 완료
+                  </button>
+                </QRWrapper>
+              )}
               {isProcessing && (
                 <div style={loadingSpinnerStyles.loadingSpinner}>
                   <TailSpin color="#00BFFF" height={80} width={80} />
@@ -317,11 +374,9 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
           )}
 
           {isComplete && (
-            <ButtonClose onClick={handleCompleteClose}>닫기+1</ButtonClose>
+            <ButtonClose onClick={handleCompleteClose}>닫기</ButtonClose>
           )}
-          {!isComplete && (
-            <ButtonClose onClick={handleClose}>그냥닫기</ButtonClose>
-          )}
+          {!isComplete && <ButtonClose onClick={handleClose}>닫기</ButtonClose>}
         </div>
       </ModalContent>
     </ModalOverlay>
