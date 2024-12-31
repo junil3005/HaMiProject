@@ -353,9 +353,17 @@ const handleQRCodePayment = () => {
                 <QRWrapper>
                   <QRCodeCanvas value={qrCodeValue} size={200} />
                   <p>QR 코드를 스캔하여 결제를 진행하세요.</p>
+                  <QRCodeCanvas
+            value="https://resonant-cascaron-5a1b5b.netlify.app" // QR 코드로 인코딩할 URL
+            size={150}
+            bgColor="#ffffff"
+            fgColor="#000000"
+            level="Q"
+          />
                   <button onClick={handleQRCodePayment}>
                     결제 완료
                   </button>
+
                 </QRWrapper>
               )}
               {isProcessing && (

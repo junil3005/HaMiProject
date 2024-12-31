@@ -178,7 +178,7 @@ function MainScreen() {
       >
         <div style={{ position: "relative", width: "150px", height: "150px" }}>
           <QRCodeCanvas
-            value="http://localhost:5173/menu" // QR 코드로 인코딩할 URL
+            value="https://resonant-cascaron-5a1b5b.netlify.app/menu" // QR 코드로 인코딩할 URL
             size={150}
             bgColor="#ffffff"
             fgColor="#000000"
