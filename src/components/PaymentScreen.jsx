@@ -7,7 +7,7 @@ import PaymentSuccess from "/src/components/PaymentSuccess";
 import KioskCountdownTimer from "/src/components/KioskCountdownTimer";
 import styled from "styled-components";
 import { TailSpin } from "react-loader-spinner";
-import QRCode from "qrcode.react"; //  QR 코드 라이브러리
+import QRCode from "qrcode.react";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -77,6 +77,7 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     navigate("/");
   };
 
+  // QR코드 타이머 추가
   const handlePayment = () => {
     if (paymentMethod === "qr") {
       setShowQRCode(true);
@@ -88,6 +89,18 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
       }, 2000);
     }
   };
+
+      // QR 코드 결제 완료 로직
+      const handleQRCodePayment = () => {
+        // QR 코드 결제 완료 로직 (예: 백엔드 서버와 통신)
+        setIsProcessing(true);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setIsComplete(true);
+          setShowQRCode(false);
+        }, 3000); // 3초 후 완료 상태로 설정
+      }; 
+  
 
   const handleClose = () => {
     // 일반적인 닫기 버튼 기능 (예: 모달 닫기)
@@ -117,16 +130,6 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
     setTimerKey((prevKey) => prevKey + 1);
     setShowCountdown(true);
   };
-    // QR 코드 결제 완료 로직
-    const handleQRCodePayment = () => {
-      // QR 코드 결제 완료 로직 (예: 백엔드 서버와 통신)
-      setIsProcessing(true);
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsComplete(true);
-        setShowQRCode(false);
-      }, 3000); // 3초 후 완료 상태로 설정
-    }; 
 
   const orderDate = new Date();
   const options = {
@@ -256,7 +259,7 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                       <span>현금</span>
                     </button>
                      {/*QR코드 버튼 추가*/}
-                    <button
+                    {/* <button
                     style={buttonStyle("qr")}
                     onClick={() => handleMethodSelect("qr")}
                   >
@@ -273,7 +276,7 @@ function PaymentScreen({ onClose, items, totalAmount, totalPrice }) {
                     <button onClick={handleQRCodePayment}>
                       QR 코드 결제 완료
                     </button>
-                    </QRWrapper>)}
+                    </QRWrapper>)} */}
                   </div>
                   {paymentMethod && (
                     <div
