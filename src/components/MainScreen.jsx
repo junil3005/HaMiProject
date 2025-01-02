@@ -53,6 +53,20 @@ function MainScreen() {
       languages: "言語選択",
     },
   };
+
+  const isMobile = window.innerWidth <= 768;
+
+<div
+  style={{
+    position: "absolute",
+    width: isMobile ? "90%" : "1100px",
+    fontSize: isMobile ? "40px" : "70px",
+  }}
+>
+  {languageData[selectedLanguage].message}
+</div>;
+
+
   return (
     <div
       onClick={handleTouch}
@@ -178,7 +192,7 @@ function MainScreen() {
       >
         <div style={{ position: "relative", width: "150px", height: "150px" }}>
           <QRCodeCanvas
-            value="https://resonant-cascaron-5a1b5b.netlify.app/menu" // QR 코드로 인코딩할 URL
+            value="https://resonant-cascaron-5a1b5b.netlify.app/" // QR 코드로 인코딩할 URL
             size={150}
             bgColor="#ffffff"
             fgColor="#000000"

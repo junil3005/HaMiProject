@@ -227,7 +227,7 @@ const handleQRCodePayment = () => {
   };
 
   // QR코드 결제 URL 추가
-  const qrCodeValue = `http://localhost:5175/menu'?orderId=${orderId}&amount=${totalPrice}`; // 결제 URL
+  const qrCodeValue = `https://resonant-cascaron-5a1b5b.netlify.app/'?orderId=${orderId}&amount=${totalPrice}`; // 결제 URL
 
   return (
     <ModalOverlay>
